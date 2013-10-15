@@ -1,0 +1,164 @@
+<html>
+<title>Hexxagon</title>
+
+<h1>
+hexxagon
+</h1>
+<p align="center">
+Opdracht Inleiding Kunstmatige intelligentie<br/>
+Liesbeth Flobbe<br/>
+2003<br/>
+</p>
+
+<h2>
+het spel
+</h2>
+
+<p>Hexxagon (met dubbel x) is een bekend spel en tegenwoordig als <a href="http://www.lostjungle.com/games/flash/hexxagon/">flash-spel</a>
+op veel sites te vinden. Twee spelers spelen tegen elkaar op een zeshoekig
+bord met zeshoekige vakjes (d.w.z. ieder vakje grenst aan maximaal zes
+andere vakjes). Spelers beginnen met drie vakjes gevuld in hun eigen
+kleur. Het doel is, om aan het eind van het spel de meeste vakjes te
+hebben. Het spel is afgelopen, als er geen lege vakjes meer zijn.
+</p>
+
+<h2>
+de spelregels
+</h2>
+
+<p>
+Rood begint. De spelers mogen om de beurt een zet doen. De speler die aan de beurt is, kan de volgende zetten doen:</p>
+<ul><li>Hij kan een leeg vakje dat grenst aan een van z'n eigen vakjes
+  veroveren.
+<li>Hij kan van een eigen vakje springen naar een vakje precies twee
+  vakjes verderop. Dus het eigen vakje wordt leeg, en het nieuwe vakje
+  wordt in bezit genomen.
+</ul>
+<p>In beide gevallen gebeurt er vervolgens nog iets:
+<ul><li>Alle vakjes van de tegenspeler die grenzen aan het net in bezit genomen
+  vakje, worden eigendom van de speler die gezet heeft. Lege vakjes blijven
+  leeg.</ul>
+
+<p>Daarna is de andere speler aan de beurt. Het spel eindigt als er geen
+lege vakjes meer zijn. De speler die op dat moment de meeste vakjes
+heeft, heeft gewonnen.
+
+<p>Het kan gebeuren dat een speler zichzelf zo in een hoek laat drijven dat
+hij geen zetten meer kan doen. Dit gebeurt doorgaans alleen als de spelers
+erg verschillen in sterkte. Eigenlijk hoort de speler die dit doet automatisch
+te verliezen. Mijn programma stopt gewoon en geeft aan wie hoeveel steentjes
+heeft op dat moment. De class EvalMany (veel potjes achter elkaar 
+simuleren tussen twee computerspelers) wijst degene met de meeste steentjes
+als winnaar aan, wat niet correct is (maar meestal wel de juiste persoon).
+
+<h2>
+het model van het spel
+</h2>
+
+<p>De eerste stap voor mij was het modelleren van het bord. Hiervoor heb ik
+zelf een simpel co&ouml;rdinatensysteem bedacht, waarin de relaties 'neighbour'
+(naburige hokjes) en 'jump-neighbour' (bereikbaar met een geldige jump)
+goed te beschrijven waren. Als je het spel speelt (via class Hexxagon) zijn
+van ieder hokje de co&ouml;rdinatien afgedrukt.
+
+<p>De toestand van het spel op een bepaald moment, omvat:</p>
+<ul>
+<li>een lijst van alle hokjes op het bord, met het gegeven of die hokjes leeg
+zijn of door een bepaalde speler bezet worden
+<li>wie er aan de beurt is.
+</ul>
+
+<p>Uit deze dingen kun je natuurlijk andere belangrijke gegevens afleiden,
+zoals het aantal vakjes dat iedere speler heeft.
+
+<h2>
+implementatie
+</h2>
+
+<p>
+Ik heb eerst wat dingen uitgeprobeerd in Scheme, en heb vervolgens het spel
+gemaakt in Java. De toestand van het spel wordt bijgehouden in een 
+State-object. Deze class biedt ook mogelijkheden om zetten te genereren en
+te controleren. Omdat het bord met alle posities daarop erg ingewikkeld
+is, worden posities op het bord in een aparte class bijgehouden (Hexpos).
+
+<p>
+Om het mogelijk te maken makkelijk verschillende spelers (computers,
+mensen) tegen elkaar te laten spelen en hun implementatie te veranderen,
+is er voor ieder type speler een aparte class. Alle spelers moeten 
+tenminste voldoen aan de interface Player, die definiteer dat ze
+gegeven een bepaalde toestand een zet moeten kunnen produceren. Spelers
+kunnen gebruik maken van de faciliteiten van State, zoals het genereren
+van zetten.
+
+<p>
+Een Arbiter-object zorgt dat spelers om de beurt een zet mogen doen.
+Verder zorgt dit object ervoor dat te zien is wat er precies gebeurt.
+Hoewel in de opdracht ingewikkelde grafische dingen sterk afgeraden
+werden, vond ik een duidelijke output erg belangrijk voor het debuggen,
+met name om te controleren of de spelregels klopten. Bovendien leek
+het uitrekenen van cartesische co&ouml;rdinaten op een canvan me een stuk
+simpeler dan een ascii-art afbeelding van een zeshoekig bord maken. Ik
+heb daarom een grafische output gemaakt. De input gaat echter wel via
+de console.
+
+<p>Via de class Hexxagon kan het spel aangeroepen worden en kan er
+een keuze worden gemaakt uit de verschillende spelers. Daarnaast is
+er een class EvalMany, die hetzelfde doet voor alleen uitsluitend
+niet-interactieve spelers, maar die het verloop van het spel niet
+laat zien. Dit is handig om snel voor een groot aantal potjes te
+kijken welke computerspeler wint.</p>
+
+<h2>
+strategie
+</h2>
+
+<p>Ik heb eerst een aantal simpele spelers gemaakt om te testen of de
+rest van het programma werkt. Daarnaast kun je ze gebruiken om 
+betere spelers mee te vergelijken.</p>
+
+<h3>
+heuristiek
+</h3>
+
+<p>Voor alle spelers (behalve RandomPlayer) geldt dat ze op een gegeven
+moment een State moeten beoordelen op hun winkansen. Ik heb een heel
+simpele heuristiek gemaakt, namelijk het verschil tussen het eigen
+aantal vakjes en dat van de tegenstander. Het is zo ge&iuml;mplementeerd 
+dat het makkelijk moet zijn om het te veranderen, maar ik heb niet de
+behoefte gevoeld om er mee te experimenteren.
+
+<h3>
+minimax
+</h3>
+
+Ik heb Minimax ge&iuml;mplementeerd door middel van recursie (dus
+depth-first tot een bepaalde diepte). De branching
+factor van het spel is enorm. Verder dan twee beurten vooruit zoeken
+(exclusief de eigen eerste beurt) blijkt dan ook niet haalbaar. Om
+de resultaten te verbeteren, heb ik ook een versie gemaakt die
+voor een bepaalde kleine groep 'instabiele' toestanden dieper zoekt
+dan de aangegeven diepte. Het kostte erg veel moeite om de parameters
+hiervoor zo te krijgen dat er werkelijk beter gepresteerd werd.
+
+<h2>
+evaluatie
+</h2>
+
+<p>Ik had graag nog alpha-beta-pruning willen uitproberen (ik denk dat
+dat met enige moeite ook nog binnen m'n huidige recursieve 
+algoritme moet passen). Helaas loop ik tegen een deadline aan.
+
+<p>Dit was m'n grootste Java-programma tot nu toe. Ik ben tegen een
+paar dingen aangelopen. Ten eerste is 'null' niet erg geschikt om
+dingen mee te representeren (bijvoorbeeld het feit dat niemand het
+vakje bezet heeft), omdat je steeds moet checken voor null pointers
+voordat je iets anders met de betreffend variabele probeert. Dit
+was mijn grootste bron van runtime-fouten, en die duiken vaak pas op
+als je vreemde dingen doet. Ten tweede leidde het 'vertalen' van
+Scheme-fragmentjes soms tot erg ingewikkelde code: als je niet
+effici&euml;nt met lijsten kunt werken, kun je dat maar beter
+vermijden. Overblijfsel daarvan zijn de (naar mijn mening heel
+interessante) functies in MyList, die uiteindelijk nauwelijks nodig
+bleken te zijn.
+
